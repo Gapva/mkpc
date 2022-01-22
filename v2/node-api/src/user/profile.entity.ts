@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Country } from './country.entity';
 import { User } from './user.entity';
 
 @Entity({name: "mkprofiles"})
@@ -27,4 +28,8 @@ export class Profile {
 
   @Column({name: "nbmessages"})
   nbMessages: number;
+
+  @ManyToOne(_type => Country)
+  @JoinColumn({name: "country"})
+  country: Country;
 }

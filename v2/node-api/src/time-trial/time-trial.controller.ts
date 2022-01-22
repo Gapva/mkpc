@@ -4,6 +4,7 @@ import { Record } from './record.entity';
 import { Ranking } from './ranking.entity';
 import { CircuitService } from '../track-builder/circuit.service';
 import { SearchService, EQUALITY_SEARCH } from '../search/search.service';
+import { Profile } from 'src/user/profile.entity';
 
 @Controller("/time-trial")
 export class TimeTrialController {
@@ -79,24 +80,48 @@ export class TimeTrialController {
   @Get("/leaderboard")
   async getLeaderboard(@Query() params) {
     const ccFilter = +params.cc || 150;
+    const where: FindOneOptions<Ranking>["where"] = {
+      class: ccFilter,
+      player: {
+        deleted: false
+      }
+    };
+    let take = 20;
+    let paging = params.paging || {};
+    if (paging.limit < take) take = paging.limit;
+    const skip = paging.offset;
     const leaderboard = await this.em.find(Ranking, {
-      where: {
-        class: ccFilter,
-        player: {
-          deleted: false
-        }
-      },
+      where,
       order: {
         score: "DESC"
       },
       relations: ["player"],
-      take: 20
+      take,
+      skip
     });
-    const data = leaderboard.map((ranking) => ({
-      id: ranking.player.id,
-      name: ranking.player.name,
-      score: ranking.score,
-    }));
-    return { data };
+    const count = paging.count ? await this.em.count(Ranking, {
+      where,
+    }) : leaderboard.length;
+    const profiles = await this.em.find(Profile, {
+      where: {
+        id: In(leaderboard.filter(ranking => ranking.player).map((ranking) => ranking.player.id))
+      },
+      relations: ["country"]
+    });
+    const firstRanking = 1+(+skip||0);
+    const data = leaderboard.map((ranking,i) => {
+      const country = profiles.find((profile) => profile.id === ranking.player?.id)?.country;
+      return {
+        id: ranking.player?.id,
+        name: ranking.player?.name,
+        score: ranking.score,
+        rank: i + firstRanking,
+        country: country && {
+          id: country.id,
+          code: country.code
+        }
+      }
+    });
+    return { data, count };
   }
 }

@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { EntityManager, FindOneOptions } from 'typeorm';
+import { Profile } from 'src/user/profile.entity';
+import { EntityManager, FindOneOptions, In } from 'typeorm';
 import { User } from '../user/user.entity';
 
 @Controller("/online-game")
@@ -24,23 +25,41 @@ export class OnlineGameController {
           break;
       }
     }
-    const take = 20;
-    const skip = params.page ? (params.page - 1) * take : 0;
+    let take = 20;
+    let paging = params.paging || {};
+    if (paging.limit < take) take = paging.limit;
+    const skip = paging.offset;
     const leaderboard = await this.em.find(User, {
       where,
       order: {
         [score]: "DESC"
       },
-      take: 20,
+      take,
       skip
     });
-    const data = leaderboard.map((user) => ({
-      id: user.id,
-      name: user.name,
-      score: user[score]
-    }))
-    return {
-      data
-    }
+    const count = paging.count ? await this.em.count(User, {
+      where,
+    }) : leaderboard.length;
+    const profiles = await this.em.find(Profile, {
+      where: {
+        id: In(leaderboard.map((user) => user.id))
+      },
+      relations: ["country"]
+    });
+    const firstRanking = 1+(+skip||0);
+    const data = leaderboard.map((user, i) => {
+      const country = profiles.find((profile) => profile.id === user.id)?.country;
+      return {
+        id: user.id,
+        name: user.name,
+        score: user[score],
+        rank: i + firstRanking,
+        country: country && {
+          id: country.id,
+          code: country.code
+        }
+      }
+    });
+    return { data, count };
   }
 }

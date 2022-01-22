@@ -413,23 +413,25 @@ const Home: NextPage = () => {
     data: Placeholder.array(10, (id) => ({
       id,
       name: Placeholder.text(10, 20),
+      rank: Placeholder.number(1, 9),
       score: Placeholder.number(1000, 20000),
     }))
   });
-  const { data: vsLeaderboard, loading: vsLoading } = useSmoothFetch("/api/online-game/leaderboard", {
+  const leaderboardParams = "paging[limit]=10";
+  const { data: vsLeaderboard, loading: vsLoading } = useSmoothFetch(`/api/online-game/leaderboard?${leaderboardParams}`, {
     placeholder: leaderboardPlaceholder
   });
   const vsLeaderboardFiltered = useMemo(() => vsLeaderboard?.data.slice(0, 10) ?? [], [vsLeaderboard]);
-  const { data: battleLeaderboard, loading: battleLoading } = useSmoothFetch("/api/online-game/leaderboard?mode=battle", {
+  const { data: battleLeaderboard, loading: battleLoading } = useSmoothFetch(`/api/online-game/leaderboard?mode=battle&${leaderboardParams}`, {
     placeholder: leaderboardPlaceholder
   });
   const battleLeaderboardFiltered = useMemo(() => battleLeaderboard?.data.slice(0, 10) ?? [], [battleLeaderboard]);
 
-  const { data: tt150Leaderboard, loading: tt150Loading } = useSmoothFetch("/api/time-trial/leaderboard", {
+  const { data: tt150Leaderboard, loading: tt150Loading } = useSmoothFetch(`/api/time-trial/leaderboard?${leaderboardParams}`, {
     placeholder: leaderboardPlaceholder
   });
   const tt150LeaderboardFiltered = useMemo(() => tt150Leaderboard?.data.slice(0, 10) ?? [], [tt150Leaderboard]);
-  const { data: tt200Leaderboard, loading: tt200Loading } = useSmoothFetch("/api/time-trial/leaderboard?cc=200", {
+  const { data: tt200Leaderboard, loading: tt200Loading } = useSmoothFetch(`/api/time-trial/leaderboard?cc=200&${leaderboardParams}`, {
     placeholder: leaderboardPlaceholder
   });
   const tt200LeaderboardFiltered = useMemo(() => tt200Leaderboard?.data.slice(0, 10) ?? [], [tt200Leaderboard]);
@@ -883,7 +885,7 @@ const Home: NextPage = () => {
                   <th>Score</th>
                 </tr>
                 {leaderboard.map((player, i) => <tr key={player.id}>
-                  <td className={styles.top10position}>{i + 1}</td>
+                  <td className={styles.top10position}>{player.rank}</td>
                   <td><a href={`profil.php?id=${player.id}`}>{player.name}</a></td>
                   <td>{player.score}</td>
                 </tr>)}
