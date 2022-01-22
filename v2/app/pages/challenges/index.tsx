@@ -22,9 +22,23 @@ import useFormSubmit from "../../hooks/useFormSubmit";
 const ChallengesList: NextPage = () => {
   const language = useLanguage();
   const router = useRouter();
-  const { moderate, remoderate, rate, ordering } = router.query;
+  const { moderate, remoderate, rate, ordering, author, winner } = router.query;
+  const userFilter = useMemo(() => author || winner , [author, winner]);
   const rateChallenges = rate;
+  const { data: authorData, loading: authorLoading } = useSmoothFetch<{name:string}>(`/api/user/${userFilter}`, {
+    disabled: !userFilter,
+  });
   const title = useMemo(() => {
+    if (author) {
+      if (authorData?.name)
+        return language ? `Challenges list of ${authorData.name}`:`Liste des défis de ${authorData.name}`;
+      return language ? "User challenges list" : "Liste des défis de l'utilisateur";
+    }
+    if (winner) {
+      if (authorData?.name)
+        return language ? `Challenges completed by ${authorData.name}`:`Défis réussis par ${authorData.name}`;
+      return language ? "List of challenges completed" : "Liste des défis réussis";
+    }
     if (moderate != null)
       return language ? 'Challenges pending moderation' : 'Défis en attente de validation';
     if (ordering === "rating")
@@ -33,7 +47,7 @@ const ChallengesList: NextPage = () => {
       return language ? 'Undo a challenge validation' : 'Annuler la validation d\'un défi';
     return language ? 'Last published challenges' : 'Derniers défis publiés';
     // TODO title for author
-  }, [language, moderate, remoderate, ordering]);
+  }, [language, moderate, remoderate, ordering, author, winner, authorData]);
 
   const { paging, currentPage, setCurrentPage } = usePaging();
 
@@ -52,11 +66,13 @@ const ChallengesList: NextPage = () => {
   return (
     <ClassicPage title={title} className={styles.Challenges} page="game">
       <div className={styles["challenges-list-ctn"]}>
-        <h1>{title}</h1>
+        <Skeleton loading={userFilter && authorLoading}>
+          <h1>{title}</h1>
+        </Skeleton>
         {moderate && <ValidationTips />}
         {remoderate && <ReValidationTips />}
         {!rateChallenges && <div className={styles["challenges-list-sublinks"]}>
-          <img src="images/cups/cup2.png" alt="Cup" /> <a href="challengeRanking.php">{language ? 'Challenges leaderboard' : 'Classement des défis'}</a> &nbsp;
+          <img src="images/cups/cup2.png" alt="Cup" /> <a href="challengeRanking.php">{language ? 'Challenges leaderboard' : 'Classement des défis'}</a>{"   "}
           <img src="images/ministar0.png" alt="Star" className={styles.icStar} /> <Link href="/challenges?rate">{language ? 'Rate challenges' : 'Noter les défis'}</Link>
         </div>}
         {!rateChallenges && <ChallengesListSearch />}
@@ -100,8 +116,8 @@ function ValidationTips() {
       <div id={styles["validation-hints"]}>
         For each challenge, you have 3 options:
         <ul>
-          <li>Accept challenge, by clicking on <button className={styles["challenges-item-accept"]}>&check;</button></li>
-          <li>Reject challenge, by clicking on <button className={styles["challenges-item-reject"]}>&times;</button></li>
+          <li>Accept challenge, by clicking on <button className={styles["challenges-item-accept"]}>✓</button></li>{" "}
+          <li>Reject challenge, by clicking on <button className={styles["challenges-item-reject"]}>×</button></li>
           <li>Accept challenge, but change difficulty level</li>
         </ul>
         Here are the reasons why you would reject a challenge:
@@ -128,18 +144,18 @@ function ValidationTips() {
       <div id={styles["validation-hints"]}>
         Pour chaque défi, vous avez 3 possibilités :
         <ul>
-          <li>Accepter le défi, en cliquant sur <button className={styles["challenges-item-accept"]}>&check;</button></li>
-          <li>Refuser le défi, en cliquant sur <button className={styles["challenges-item-reject"]}>&times;</button></li>
+          <li>Accepter le défi, en cliquant sur <button className={styles["challenges-item-accept"]}>✓</button></li>{" "}
+          <li>Refuser le défi, en cliquant sur <button className={styles["challenges-item-reject"]}>×</button></li>
           <li>Accepter le défi, mais modifier le niveau de difficulté</li>
         </ul>
-        Voici les raisons pour lesquelles vous pouvez refuser un défi&nbsp;:
+        Voici les raisons pour lesquelles vous pouvez refuser un défi :
         <ul>
           <li>Défi sans intérêt ou avec aucune difficulté (&quot;Finir le circuit&quot; sans contraintes, sur un circuit facile)</li>
           <li>Spam (12 fois le même défi, ou des défis simillaires publiées par la même personne)</li>
           <li>Contrainte évidente manquante (&quot;Ordis en mode difficile&quot;). Dans ce cas, précisez-le dans le message de refus.</li>
           <li>Nom de défi avec des insultes ou des mots obscènes</li>
         </ul>
-        Vous pouvez également modifier la difficulté si vous la jugez inadaptée au défi. Essayez de vous confortez à cette échelle de référence&nbsp;:
+        Vous pouvez également modifier la difficulté si vous la jugez inadaptée au défi. Essayez de vous confortez à cette échelle de référence :
         <ul>
           <li>Un défi <span className={styles["challenges-item-difficulty-0"]}>facile</span> doit être faisable par un débutant (&quot;Finir le Circuit Mario 1 en Contre-La-Montre en moins de 55s&quot;)</li>
           <li>Un défi <span className={styles["challenges-item-difficulty-1"]}>moyen</span> est typiquement difficile pour un débutant mais facile pour un joueur expérimenté (&quot;Finir le Circuit Mario 1 en CLM en moins de 45s&quot;)</li>
@@ -172,7 +188,7 @@ function ChallengesListSearch() {
           <option value="">{language ? 'Difficulty...' : 'Difficulté...'}</option>
           {challengeDifficulties?.map((challengeDifficulty) => <option key={challengeDifficulty.level} value={challengeDifficulty.level}>{challengeDifficulty.name}</option>)}
         </select></label>
-      &nbsp;
+        {"   "}
       <label><input type="checkbox" name="hide_succeeded" defaultChecked={!!hide_succeeded} />{language ? 'Hide succeeded challenges' : 'Masquer les défis réussis'}</label>
     </p>
     <p>
@@ -182,7 +198,7 @@ function ChallengesListSearch() {
           <option value="latest">{language ? 'Most recent challenges' : 'Défis les plus récents'}</option>
           <option value="rating">{language ? 'Top rated challenges' : 'Défis les mieux notés'}</option>
         </select></label>
-      &nbsp;<input type="submit" value="Ok" />
+      {"  "}<input type="submit" value="Ok" />
     </p>
   </form>
 }
@@ -193,7 +209,7 @@ function challengePlaceholder(id: number) {
     name: Placeholder.text(25, 45),
     difficulty: {
       name: Placeholder.text(5, 8),
-      level: Placeholder.rand(0, 5)
+      level: 0
     },
     description: {
       main: Placeholder.text(100, 120),
@@ -223,8 +239,8 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
   const router = useRouter();
   const language = useLanguage();
   const challengeDifficulties = useChallengeDifficulties();
-  const { moderate, remoderate, rate, ordering } = router.query;
-  const rateChallenges = rate;
+  const { moderate, remoderate, rate } = router.query;
+  const rateChallenges = (rate != null);
   const isChallengeAction = rateChallenges || (moderate != null) || (remoderate != null);
   const challengeAction = useMemo(() => {
     if (rateChallenges)
@@ -239,25 +255,26 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
   const [challengeThanks, setChallengeThanks] = useState(false);
 
   const rateChallenge = useCallback((rating) => {
-    window["o_xhr"]("challengeRate.php", "challenge=" + challenge.id + "&rating=" + rating, function (reponse) {
+    setChallengeThanks(false);
+    window["o_xhr"]("challengeRate.php", "challenge=" + challenge.id + "&rating=" + (rating||0), function (reponse) {
       if (reponse == 1) {
         setChallengeThanks(true);
         return true;
       }
       return false;
     });
-  }, [challenge]);
+  }, [challenge, setChallengeThanks]);
   const [edittingDifficulty, setEdittingDifficulty] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState(challenge.difficulty.level);
+  const [selectedDifficulty, setSelectedDifficulty] = useState(challenge.difficulty);
 
   const acceptChallenge = useCallback(() => {
     const lastDifficulty = challenge.difficulty.level;
-    const newDifficulty = selectedDifficulty;
+    const newDifficulty = selectedDifficulty.level;
     const difficultyChanged = (lastDifficulty != newDifficulty);
     if (difficultyChanged) {
       window["o_prompt"](language
         ? "Please confirm challenge <strong>approval</strong>.<br />Optionnal: explain why you changed challenge difficulty:"
-        : "Veuillez confirmer la <strong>validation</strong> du défi.<br />Facultatif&nbsp;: expliquez le changement de difficulté&nbsp;:",
+        : "Veuillez confirmer la <strong>validation</strong> du défi.<br />Facultatif : expliquez le changement de difficulté :",
         "",
         function (msg) {
           var data = { "challenge": challenge.id, "accept": 1, "difficulty": newDifficulty };
@@ -278,12 +295,12 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
         }
       );
     }
-  }, [challenge, language]);
+  }, [challenge, language, selectedDifficulty]);
 
   const rejectChallenge = useCallback(() => {
     window["o_prompt"](language
       ? "Please confirm challenge <strong>refusal</strong>.<br />Optionnal: explain why you rejected challenge:"
-      : "Veuillez confirmer la <strong>non-validation</strong> du défi.<br />Facultatif&nbsp;: donnez les raisons du refus&nbsp;:",
+      : "Veuillez confirmer la <strong>non-validation</strong> du défi.<br />Facultatif : donnez les raisons du refus :",
       "",
       function (msg) {
         var data = { "challenge": challenge.id, "accept": 0 };
@@ -331,6 +348,10 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
   const editDifficulty = useCallback(() => {
     setEdittingDifficulty(true);
   }, []);
+  const selectDifficulty = useCallback((difficulty: number) => {
+    setSelectedDifficulty(challengeDifficulties.find(d => d.level == difficulty));
+    setEdittingDifficulty(false);
+  }, []);
   const uneditDifficulty = useCallback(() => {
     setEdittingDifficulty(false);
   }, []);
@@ -339,7 +360,7 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
     [styles["challenges-list-item-rate"]]: rateChallenges,
     [styles["challenges-list-item-moderate"]]: (moderate != null) || (remoderate != null),
     [styles["list-item-success"]]: challenge.succeeded
-  })} id={styles[`challenges-item-${challenge.id}`]} href={`challengeTry.php?challenge=${challenge.id}`}>
+  })} id={`challenges-item-${challenge.id}`} href={`challengeTry.php?challenge=${challenge.id}`}>
     <div className={cx(styles["challenges-item-circuit"], styles.creation_icon, challenge.circuit.isCup ? styles.creation_cup : styles.single_creation)}
       style={{ backgroundImage: challenge.circuit.icons ? challenge.circuit.icons.map(src => `url('images/creation_icons/${src}')`).join(",") : undefined }}
       data-cicon={challenge.circuit.icons ? undefined : challenge.circuit.cicon}>
@@ -355,16 +376,16 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
     <div className={cx(styles["challenges-item-action"], {
       [styles["challenges-item-action-rate"]]: isChallengeAction,
     })}
-      onClick={() => {
+      onClick={(e) => {
         if (isChallengeAction)
-          return false;
+          e.preventDefault();
       }}
     >
       {
         (challengeAction === 'rate') && <>
-          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${challenge.difficulty.level}`])}>
-            <img src={`images/challenges/difficulty${challenge.difficulty.level}.png`} alt={challenge.difficulty.name} />
-            {" "}{challenge.difficulty.name}
+          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${selectedDifficulty.level}`])}>
+            <img src={`images/challenges/difficulty${selectedDifficulty.level}.png`} alt={selectedDifficulty.name} />
+            {" "}{selectedDifficulty.name}
             {challengeThanks && <span className={styles["challenges-item-rating-thanks"]}>{language ? 'Thanks!' : 'Merci !'}</span>}
           </div>
           <RatingControl defaultValue={challenge.rating.avg} onChange={(value) => {
@@ -376,17 +397,17 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
         </>}
       {
         (challengeAction === "moderate") && <>
-          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${challenge.difficulty.level}`])}>
-            <div className={styles["challenges-item-difficulty-value"]}>
-              <img src={`images/challenges/difficulty${challenge.difficulty.level}.png`} alt={challenge.difficulty.name} />
-              {" "}{challenge.difficulty.name}
-              <span className={styles["challenge-item-link"]} onClick={editDifficulty}>{language ? 'Edit' : 'Modifier'}</span>
-            </div>
-            <div className={cx(styles["challenges-item-difficulty-edit"], {
+          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${selectedDifficulty.level}`], {
               [styles["challenges-item-editting"]]: edittingDifficulty
             })}>
-              <select className={styles["challenges-item-difficulty-select"]} value={selectedDifficulty} onChange={(e) => setSelectedDifficulty(+e.target.value)}>
-                {challengeDifficulties.map((name, i) => <option value={i}>{name}</option>)}
+            <div className={styles["challenges-item-difficulty-value"]}>
+              <img src={`images/challenges/difficulty${selectedDifficulty.level}.png`} alt={selectedDifficulty.name} />
+              {" "}{selectedDifficulty.name}{" "}
+              <span className={styles["challenge-item-link"]} onClick={editDifficulty}>{language ? 'Edit' : 'Modifier'}</span>
+            </div>
+            <div className={cx(styles["challenges-item-difficulty-edit"])}>
+              <select className={styles["challenges-item-difficulty-select"]} value={selectedDifficulty.level} onChange={(e) => selectDifficulty(+e.target.value)}>
+                {challengeDifficulties?.map(({name}, i) => <option key={i} value={i}>{name}</option>)}
               </select>
               <span className={styles["challenge-item-link"]} onClick={uneditDifficulty}>{language ? 'Undo' : 'Annuler'}</span>
             </div>
@@ -395,8 +416,8 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
             {language ? 'By' : 'Par'} <strong>{challenge.circuit.author}</strong>
           </div>}
           <div className={styles["challenges-item-moderation"]}>
-            <button className={styles["challenges-item-accept"]} onClick={acceptChallenge}>&check;</button>
-            <button className={styles["challenges-item-reject"]} onClick={rejectChallenge}>&times;</button>
+            <button className={styles["challenges-item-accept"]} onClick={acceptChallenge}>✓</button>{" "}
+            <button className={styles["challenges-item-reject"]} onClick={rejectChallenge}>×</button>
           </div>
         </>
       }
@@ -404,9 +425,9 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
         (challengeAction === "remoderate") && <>
           <div className={styles["challenge-item-remoderate"]}>
             {challenge.status === 'active' ? <>
-              <span className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${challenge.difficulty.level}`])}>
-                <img src={`images/challenges/difficulty${challenge.difficulty.level}.png`} alt={challenge.difficulty.name} />
-                {" "}{challenge.difficulty.name}
+              <span className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${selectedDifficulty.level}`])}>
+                <img src={`images/challenges/difficulty${selectedDifficulty.level}.png`} alt={selectedDifficulty.name} />
+                {" "}{selectedDifficulty.name}
               </span><br />
               <span className={styles["challenges-item-accepted"]}>
                 {language ? 'Accepted' : 'Accepté'}
@@ -425,9 +446,9 @@ function ChallengeItem({ challenge }: ChallengeItemProps) {
       }
       {
         (challengeAction === null) && <>
-          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${challenge.difficulty.level}`])}>
-            <img src={`images/challenges/difficulty${challenge.difficulty.level}.png`} alt={challenge.difficulty.name} />
-            {" "}{challenge.difficulty.name}
+          <div className={cx(styles["challenges-item-difficulty"], styles[`challenges-item-difficulty-${selectedDifficulty.level}`])}>
+            <img src={`images/challenges/difficulty${selectedDifficulty.level}.png`} alt={selectedDifficulty.name} />
+            {" "}{selectedDifficulty.name}
           </div>
           <div className={styles["challenges-item-rating"]}>
             <Rating rating={challenge.rating.avg} nbRatings={challenge.rating.nb} />

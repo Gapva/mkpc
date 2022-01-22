@@ -819,14 +819,7 @@ const Home: NextPage = () => {
               </a>)
             }
           </Skeleton>
-          {/*
-			if (hasRight('clvalidator')) {
-				$getPendingChallenges = mysql_fetch_array(mysql_query('SELECT COUNT(*) AS nb FROM mkchallenges WHERE status="pending_moderation"'));
-				if ($getPendingChallenges['nb']) {
-					$s = ($getPendingChallenges['nb']>=2) ? 's':'';
-					echo '<p className={styles["nb-pending-news"]}><Link href="/challenges?moderate">'. $getPendingChallenges['nb'] .' '. ($language ? 'pending':"défi$s") .'</Link> '. ($language ? "challenge$s":'en attente de validation') .'</p>';
-				}
-			*/}
+          {user?.roles.clvalidator && <PendingChallenges />}
           <Link href="/challenges"><a className={cx(styles.right_section_actions, commonStyles.action_button)}>{language ? 'Display all' : 'Afficher tout'}</a></Link>
           <div id={styles.challenge_ranking}><a href="/challengeRanking.php">{language ? 'Challenge points - Leaderboard' : 'Classement des points défis'}</a></div>
           <h2>{language ? 'Recent activity' : 'Activité récente'}</h2>
@@ -1001,6 +994,16 @@ function PendingNews() {
 
   return <p className={styles["nb-pending-news"]}>
     <Link href={"/news#pending-news"}>{plural(language ? "%n pending" : "%n news", pendingNewsPayload.count)}</Link> {language ? 'news' : 'en attente de validation'}
+  </p>
+}
+function PendingChallenges() {
+  const language = useLanguage();
+  const { data: pendingChallengesPayload } = useSmoothFetch<{ count: number }>("/api/getChallenges.php?moderate&limit=0");
+
+  if (!pendingChallengesPayload?.count) return <></>;
+
+  return <p className={styles["nb-pending-news"]}>
+    <Link href={"/challenges?moderate"}>{plural(language ? "%n pending" : "%n défi%s", pendingChallengesPayload.count)}</Link> {language ? 'challenges' : 'en attente de validation'}
   </p>
 }
 
