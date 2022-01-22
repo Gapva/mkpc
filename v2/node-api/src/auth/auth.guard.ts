@@ -74,7 +74,7 @@ export class AuthGuard implements CanActivate {
         cookie: request.headers.cookie ?? "",
       }
     });
-    const id = +authUser.data;
+    const id = +authUser.data || 0;
     if (this.userIdCache[sessId])
       clearTimeout(this.userIdCache[sessId].expiryHandler);
     const userCacheTtl = 10000000; // Cache of about 3h
