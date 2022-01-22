@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Head from 'next/head'
 import ClassicPage, { commonStyles } from "../../components/ClassicPage/ClassicPage";
 import styles from "../../styles/Leaderboard.module.scss";
 import useLanguage from "../../hooks/useLanguage";
@@ -12,7 +13,8 @@ import { usePaging } from "../../hooks/usePaging";
 import Pager from "../../components/Pager/Pager";
 import { buildQuery } from "../../helpers/uris";
 import { formatRank } from "../../helpers/records";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import useScript from "../../hooks/useScript";
 
 const Leaderboard: NextPage = () => {
   const language = useLanguage();
@@ -38,6 +40,26 @@ const Leaderboard: NextPage = () => {
     setUsername(e.currentTarget.elements["username"].value);
   }
 
+  const [autoCompleteLoading1, setAutoCompleteLoading1] = useState(false);
+  const [autoCompleteLoading2, setAutoCompleteLoading2] = useState(false);
+  useScript("/scripts/auto-complete.min.js", {
+    onload: () => setAutoCompleteLoading1(true)
+  });
+  useScript("/scripts/autocomplete-player.js", {
+    onload: () => setAutoCompleteLoading2(true)
+  });
+  useEffect(() => {
+    if (autoCompleteLoading1 && autoCompleteLoading2) {
+      window["autocompletePlayer"]('#username', {
+        onSelect: function(event, term) {
+          window["preventSubmit"](event);
+          resetPage();
+          setUsername(term);
+        }
+      });
+    }
+  }, [autoCompleteLoading1, autoCompleteLoading2]);
+
   const { data: leaderboardPayload, loading: leaderboardLoading } = useSmoothFetch(`/api/online-game/leaderboard?${buildQuery({
     mode: isBattle ? "battle" : "vs",
     name: username,
@@ -62,6 +84,9 @@ const Leaderboard: NextPage = () => {
 
   return (
     <ClassicPage title={`${language ? 'Online mode leaderboard':'Classement mode en ligne'} - Mario Kart PC`} className={styles.Leaderboard} page="game">
+      <Head>
+        <link rel="stylesheet" href="/styles/auto-complete.css" />
+      </Head>
       <h1>{ language ? 'Leaderboard Mario Kart PC':'Classement Mario Kart PC' }</h1>
       <div className={styles["ranking-modes"]}>
         {
