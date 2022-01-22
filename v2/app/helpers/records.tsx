@@ -5,7 +5,7 @@ export function formatTime(ms: number) {
   let m = Math.floor(s / 60);
   s = s % 60;
   ms = ms % 1000;
-  return `${m.toString()}:${s.toString().padStart(2, '0')}:${ms.toString().padStart(3, '0')}`;
+  return <>{m.toString()}:{s.toString().padStart(2, '0')}:{ms.toString().padStart(3, '0')}</>
 }
 
 // Format rank into an ordinal number
@@ -34,5 +34,5 @@ export function formatRank(language, rank) {
   }
   else
     sPlace = ((rank > 1) ? "e" : "er");
-  return `${rank}<sup>${sPlace}</sup>`;
+  return <>{rank}<sup>{sPlace}</sup></>;
 }

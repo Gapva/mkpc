@@ -56,7 +56,6 @@ import ss11xs from "../images/main/screenshots/ss11xs.png"
 import ss12xs from "../images/main/screenshots/ss12xs.png"
 import { formatDate } from "../helpers/dates";
 import { formatRank, formatTime } from "../helpers/records";
-import { escapeHtml } from "../helpers/strings";
 import { buildQuery } from "../helpers/uris";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import cx from "classnames";
@@ -385,7 +384,7 @@ const Home: NextPage = () => {
         ...comment,
         key: `comment${comment.id}`,
         title: comment.message,
-        message: escapeHtml(comment.message),
+        message: comment.message,
         name: comment.author?.name,
         icon: commentIcon,
         type: "comment",
@@ -397,7 +396,7 @@ const Home: NextPage = () => {
         ...record,
         key: `record${record.id}`,
         icon: clockIcon,
-        message: `${formatTime(record.time)} (${formatRank(language, record.leaderboard.rank)} ${language ? "out of" : "sur"} ${record.leaderboard.count})`,
+        message: <>{formatTime(record.time)} ({formatRank(language, record.leaderboard.rank)} {language ? "out of" : "sur"} {record.leaderboard.count})</>,
         type: "record",
         recency: (new Date().getTime() - new Date(record.date).getTime()) * 2
       }
@@ -828,7 +827,7 @@ const Home: NextPage = () => {
           <Skeleton loading={commentsLoading || recordsLoading} id={styles.comments_section} className={styles.right_subsection}>
             {activityPayload?.map((activity) => (
               <a key={activity.key} href={activity.circuit.url} title={activity.title}>
-                <h2><img src={activity.icon.src} alt={activity.type} /> <span dangerouslySetInnerHTML={{ __html: activity.message }} /></h2>
+                <h2><img src={activity.icon.src} alt={activity.type} /> <span>{activity.message}</span></h2>
                 <h3>
                   {activity.name && <div className={styles.comments_section_author}>
                     {language ? 'By' : 'Par'}{" "}

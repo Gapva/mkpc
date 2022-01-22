@@ -37,8 +37,11 @@ function addRandomSpaces(text: string) {
   }
   return res;
 }
+function placeholderWord(minLength: number, maxLength: number = minLength) {
+  return Array(rand(minLength, maxLength + 1)).fill('-').join('');
+}
 function placeholderText(minLength: number, maxLength: number = minLength) {
-  return addRandomSpaces(Array(rand(minLength, maxLength + 1)).fill('-').join(''));
+  return addRandomSpaces(placeholderWord(minLength, maxLength));
 }
 function placeholderNb(min: number, max: number = min) {
   return Math.floor(Math.pow(10, randUnif(Math.log10(min), Math.log10(max))));
@@ -71,6 +74,7 @@ export const Placeholder = {
   date: placeholderDate,
   timestamp: placeholderTimestamp,
   img: placeholderImg,
+  word: placeholderWord,
   rand
 }
 
