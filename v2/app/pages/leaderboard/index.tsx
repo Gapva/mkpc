@@ -24,19 +24,24 @@ const Leaderboard: NextPage = () => {
   const { battle } = router.query;
   const isBattle = battle != null;
   const [username, setUsername] = useState("");
+  const [pageChanging, setPageChanging] = useState(false);
+  useEffect(() => {
+    setPageChanging(false);
+  }, [isBattle])
 
   const { paging, currentPage, setCurrentPage } = usePaging(20);
 
   function resetPage() {
-    setCurrentPage(1);
-  };
+    setPageChanging(true);
+    handlePageChange(1);
+  }
   function handlePageChange(page) {
     setUsername("");
     setCurrentPage(page);
   }
   function handleSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    resetPage();
+    setCurrentPage(1);
     setUsername(e.currentTarget.elements["username"].value);
   }
 
@@ -53,7 +58,7 @@ const Leaderboard: NextPage = () => {
       window["autocompletePlayer"]('#username', {
         onSelect: function(event, term) {
           window["preventSubmit"](event);
-          resetPage();
+          setCurrentPage(1);
           setUsername(term);
         }
       });
@@ -77,7 +82,8 @@ const Leaderboard: NextPage = () => {
       })),
       count: 0
     }),
-    reloadDeps: [username, isBattle, currentPage]
+    disabled: pageChanging,
+    reloadDeps: [username, isBattle, currentPage, pageChanging]
   });
 
   const playerPage = username && leaderboardPayload.data[0] && Math.ceil(leaderboardPayload.data[0].rank / paging.limit);

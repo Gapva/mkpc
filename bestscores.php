@@ -1,4 +1,6 @@
 <?php
+header('location: /leaderboard?'. $_SERVER['QUERY_STRING']);
+exit;
 include('language.php');
 include('session.php');
 include('initdb.php');
