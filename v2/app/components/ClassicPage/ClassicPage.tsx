@@ -87,7 +87,7 @@ function ClassicPage(props: Props) {
     }
     if (window["o_loaded"] === undefined) {
       window["o_loaded"] = false;
-      insertScript("scripts/online.js");
+      insertScript("/scripts/online.js");
     }
   }, [props.noOnlineChat]);
 

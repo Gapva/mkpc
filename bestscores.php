@@ -1,5 +1,5 @@
 <?php
-header('location: /leaderboard?'. $_SERVER['QUERY_STRING']);
+header('location: /leaderboard/online?'. $_SERVER['QUERY_STRING']);
 exit;
 include('language.php');
 include('session.php');

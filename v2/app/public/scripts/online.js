@@ -56,7 +56,7 @@ window.onblur = function () {
 };
 
 function o_inviteonline(memberID, battle) {
-	o_xhr("invitations.php", "j0=" + memberID + (battle ? "&battle" : ""), function (reponse) {
+	o_xhr("/invitations.php", "j0=" + memberID + (battle ? "&battle" : ""), function (reponse) {
 		if (reponse == 1) {
 			var o_msgId = displayMsg(o_language ? "Invitation sent" : "Invitation envoy&eacute;e", false);
 			if (o_msgId != -1) {
@@ -117,7 +117,7 @@ function o_refreshtable() {
 					o_selector.className += " coignored";
 				if (oJoueur[3]) {
 					var o_flag = document.createElement("img");
-					o_flag.src = "images/flags/" + oJoueur[3] + ".png";
+					o_flag.src = "/images/flags/" + oJoueur[3] + ".png";
 					o_flag.alt = oJoueur[3];
 					o_flag.className = "coflag";
 					o_flag.style.visibility = "hidden";
@@ -165,7 +165,7 @@ function o_refreshtable() {
 							var o_unignore = document.createElement("div");
 							o_unignore.innerHTML = o_language ? "Unignore" : "D&eacute;signorer";
 							o_unignore.onclick = function (e) {
-								o_xhr("unignore.php", "member=" + memberID, function (reponse) {
+								o_xhr("/unignore.php", "member=" + memberID, function (reponse) {
 									if (reponse == 1) {
 										var ignoreID = oIgnores.indexOf(memberID);
 										if (ignoreID != -1) {
@@ -230,7 +230,7 @@ function o_refreshtable() {
 									o_invitevs.appendChild(o_invitevs_pts);
 									o_ctxtmenu2.appendChild(o_invitevs);
 									o_liste.appendChild(o_ctxtmenu2);
-									o_xhr("getPts.php", "id=" + memberID, function (reponse) {
+									o_xhr("/getPts.php", "id=" + memberID, function (reponse) {
 										if (!reponse) return false;
 										var pts;
 										try {
@@ -251,7 +251,7 @@ function o_refreshtable() {
 								o_profile.dataset = {};
 							o_profile.dataset.id = memberID;
 							o_profile.onclick = function () {
-								document.location.href = "profil.php?id=" + this.dataset.id;
+								document.location.href = "/profil.php?id=" + this.dataset.id;
 							}
 
 							var o_ignore = document.createElement("div");
@@ -259,7 +259,7 @@ function o_refreshtable() {
 							o_ignore.onclick = function (e) {
 								o_confirm(o_language ? "Ignore " + memberPseudo + "?<br />You won't be able to send or receive messages from him." : "Ignorer " + memberPseudo + " ?<br />Vous ne pourrez plus envoyer ni recevoir de messages de lui.", function (res) {
 									if (res) {
-										o_xhr("ignore.php", "member=" + memberID, function (reponse) {
+										o_xhr("/ignore.php", "member=" + memberID, function (reponse) {
 											if (reponse == 1) {
 												var ignoreID = oIgnores.indexOf(memberID);
 												if (ignoreID == -1) {
@@ -378,7 +378,7 @@ function o_fill_chats(oMask, lastMembers) {
 				oInput.value = pseudo;
 				oInput.select();
 			}
-			o_xhr("findIDByPseudo.php", "pseudo=" + pseudo, function (memberID) {
+			o_xhr("/findIDByPseudo.php", "pseudo=" + pseudo, function (memberID) {
 				if (!memberID)
 					return false;
 				if (memberID == -1)
@@ -407,7 +407,7 @@ function o_my_chats(lastMembers) {
 		o_fill_chats(oMask, lastMembers);
 	else {
 		oContainer.innerHTML = o_language ? "Loading..." : "Chargement...";
-		o_xhr("getLastChats.php", null, function (lastMembers) {
+		o_xhr("/getLastChats.php", null, function (lastMembers) {
 			if (!lastMembers)
 				return false;
 			try {
@@ -459,16 +459,16 @@ function o_inserttags(msg) {
 	msg = msg.replace(/([a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4})/gi, '<a href="mailto:$1">$1</a>');
 	var smileyNames = ['mdr', 'lol', 'rire', 'love', 'bisou', 'fete', 'hb', 'anniv', 'coucou', 'hey', 'banane', 'facepalm', 'tusors', 'paf', 'dodo', 'youpi', 'tching', 'magic', 'fou', 'super', 'paratroopa', 'toad', 'yoshi', 'magicien', 'aie', 'miam', 'crepe', 'guitare', 'noel', 'ordi', 'merci', 'welcome', 'help', 'cool', 'boulet', 'snif', 'raah', 'genial', 'bravo', 'hap', 'up'];
 	for (var i = 0; i < smileyNames.length; i++) {
-		var newStr = '<img src="images/smileys/smiley' + i + '.gif" alt="' + smileyNames[i] + '" />';
+		var newStr = '<img src="/images/smileys/smiley' + i + '.gif" alt="' + smileyNames[i] + '" />';
 		msg = msg.split(":" + smileyNames[i] + ":").join(newStr);
 	}
 	var smileysList = [':)', ':D', ';)', ':O', ':P', ':S', ':(', '8)', ':$', ':}', '|)', '*['];
 	for (var i = 0; i < smileysList.length; i++) {
-		var newStr = '<img src="images/smileys/smiley' + i + '.png" class="osmiley" alt="Smiley" />';
+		var newStr = '<img src="/images/smileys/smiley' + i + '.png" class="osmiley" alt="Smiley" />';
 		msg = msg.split(smileysList[i]).join(newStr);
 		msg = msg.split(smileysList[i].toLowerCase()).join(newStr);
 	}
-	msg = msg.replace(new RegExp('\\:([1-3]?\\d|4[0-0])\\:', 'g'), '<img src="images/smileys/smiley$1.gif" alt="Smiley $1" />');
+	msg = msg.replace(new RegExp('\\:([1-3]?\\d|4[0-0])\\:', 'g'), '<img src="/images/smileys/smiley$1.gif" alt="Smiley $1" />');
 	return msg;
 }
 
@@ -596,7 +596,7 @@ function o_newmsgsound() {
 			if (pEmbed.length)
 				document.body.removeChild(pEmbed[0]);
 			var newMsg = document.createElement("embed");
-			newMsg.src = "musics/new.mp3";
+			newMsg.src = "/musics/new.mp3";
 			newMsg.setAttribute("autostart", "true");
 			newMsg.style.position = "absolute";
 			newMsg.style.left = "-1000px";
@@ -609,7 +609,7 @@ function o_loadprevious(memberID) {
 	var o_chat = document.getElementById("chatwindow" + memberID);
 	var o_msgs = o_chat.getElementsByClassName("chatmsg");
 	var lastID = o_msgs[0].dataset.id;
-	o_xhr("loadprevious.php", "member=" + memberID + "&lastID=" + lastID, function (reponse) {
+	o_xhr("/loadprevious.php", "member=" + memberID + "&lastID=" + lastID, function (reponse) {
 		if (!reponse)
 			return false;
 		try {
@@ -633,7 +633,7 @@ var o_chats = [];
 var o_chats_ctn;
 function o_launchchat(memberID, memberPseudo) {
 	memberID = +memberID;
-	o_xhr("startchat.php", "member=" + memberID, function (reponse) {
+	o_xhr("/startchat.php", "member=" + memberID, function (reponse) {
 		if (!reponse)
 			return false;
 		try {
@@ -673,7 +673,7 @@ function o_startchat(memberID, pseudo, messages, autofocus) {
 	var o_header = document.createElement("div");
 	o_header.className = "chatbar";
 	var o_title = document.createElement("div");
-	o_title.innerHTML = '<span class="chatbullet">\u2022</span><a href="profil.php?id=' + memberID + '">' + pseudo + '</a>';
+	o_title.innerHTML = '<span class="chatbullet">\u2022</span><a href="/profil.php?id=' + memberID + '">' + pseudo + '</a>';
 	var o_chat_x = 0;
 	var o_chat_y = 0;
 	o_chat.style.left = o_chat_x + "px";
@@ -707,7 +707,7 @@ function o_startchat(memberID, pseudo, messages, autofocus) {
 	o_close.onclick = function () {
 		o_closechat(o_chat);
 		var lastID = o_lastmsgid(o_chat);
-		o_xhr("stopchat.php", "member=" + memberID + "&lastID=" + lastID, function (reponse) {
+		o_xhr("/stopchat.php", "member=" + memberID + "&lastID=" + lastID, function (reponse) {
 			return (reponse == 1);
 		});
 		return false;
@@ -761,7 +761,7 @@ function o_startchat(memberID, pseudo, messages, autofocus) {
 			o_updateinputsize(o_input);
 			var lastID = o_lastmsgid(o_chat);
 			o_chat.dataset.typing = -1;
-			o_xhr("sendmsg.php", "member=" + memberID + "&message=" + encodeURIComponent(answerValue) + "&lastID=" + lastID, function (reponse) {
+			o_xhr("/sendmsg.php", "member=" + memberID + "&message=" + encodeURIComponent(answerValue) + "&lastID=" + lastID, function (reponse) {
 				if (!reponse)
 					return false;
 				try {
@@ -951,7 +951,7 @@ function o_deco() {
 	if (n_online != a_online) {
 		setDecoStatus(n_online);
 		setDecoLink();
-		o_xhr("codeco.php", "connecte=" + n_online, function (reponse) {
+		o_xhr("/codeco.php", "connecte=" + n_online, function (reponse) {
 			if (reponse == "1") {
 				o_refreshstate = -1;
 				if (!a_online)
@@ -988,7 +988,7 @@ function o_loadOnline() {
 			all[i].getElementsByClassName = findByClass;
 		Element.prototype.getElementsByClassName = findByClass;
 	}
-	o_xhr("getpseudo.php", "", function (reponse) {
+	o_xhr("/getpseudo.php", "", function (reponse) {
 		if (reponse) {
 			var oPseudoInfos;
 			try {
@@ -1005,7 +1005,7 @@ function o_loadOnline() {
 			setDecoStatus(oPseudoInfos[3]);
 			var o_div = document.createElement("div");
 			o_div.id = "connect";
-			o_div.innerHTML = '<div id="pseudostatus"><a title="' + (o_language ? 'See my profile' : 'Voir mon profil') + '" href="profil.php?id=' + oPseudoInfos[0] + '">' + oPseudoInfos[1] + '</a> : <select id="statutco" class="isnotconnected" onchange="o_deco()"><option value="0" class="isnotconnected">' + (o_language ? 'Offline' : 'Hors-ligne') + '</option><option value="1" class="ismuted">' + (o_language ? 'Do not disturb' : 'Ne pas d&eacute;ranger') + '</option><option value="2" class="isconnected">' + (o_language ? 'Connected' : 'Connect&eacute;') + '</option></select></div><a class="coselectable" href="javascript:o_invitesb()">' + (o_language ? 'Members Area' : 'Espace membres') + '</a><a class="coselectable" href="https://discord.gg/VkeAxaj" target="_blank">' + (o_language ? 'Discord Server' : 'Serveur Discord') + '</a>';
+			o_div.innerHTML = '<div id="pseudostatus"><a title="' + (o_language ? 'See my profile' : 'Voir mon profil') + '" href="/profil.php?id=' + oPseudoInfos[0] + '">' + oPseudoInfos[1] + '</a> : <select id="statutco" class="isnotconnected" onchange="o_deco()"><option value="0" class="isnotconnected">' + (o_language ? 'Offline' : 'Hors-ligne') + '</option><option value="1" class="ismuted">' + (o_language ? 'Do not disturb' : 'Ne pas d&eacute;ranger') + '</option><option value="2" class="isconnected">' + (o_language ? 'Connected' : 'Connect&eacute;') + '</option></select></div><a class="coselectable" href="javascript:o_invitesb()">' + (o_language ? 'Members Area' : 'Espace membres') + '</a><a class="coselectable" href="https://discord.gg/VkeAxaj" target="_blank">' + (o_language ? 'Discord Server' : 'Serveur Discord') + '</a>';
 			o_chats_ctn = document.createElement("div");
 			o_chats_ctn.id = "chatsctn";
 			document.body.appendChild(o_chats_ctn);
@@ -1015,7 +1015,7 @@ function o_loadOnline() {
 				o_startchat(o_conv[0], o_conv[1], o_conv[2], false);
 			}
 			oIgnores = oPseudoInfos[5];
-			o_xhr("coreload.php", "", function (reponse) {
+			o_xhr("/coreload.php", "", function (reponse) {
 				if (reponse) {
 					var oJoueursInfos;
 					try {
@@ -1112,7 +1112,7 @@ function o_prompt(msg, hint, onValid) {
 	}
 	var oCross = document.createElement("a");
 	oCross.className = "o_dialog_cross";
-	oCross.href = "null";
+	oCross.href = "#null";
 	oCross.innerHTML = "&times";
 	oDialog.appendChild(oCross);
 	var oMessage = document.createElement("div");
@@ -1166,7 +1166,7 @@ function o_confirm(msg, onValid) {
 	}
 	var oCross = document.createElement("a");
 	oCross.className = "o_dialog_cross";
-	oCross.href = "null";
+	oCross.href = "#null";
 	oCross.innerHTML = "&times";
 	oDialog.appendChild(oCross);
 	var oMessage = document.createElement("div");
@@ -1213,7 +1213,7 @@ function o_dialog() {
 	}
 	var oCross = document.createElement("a");
 	oCross.className = "o_dialog_cross";
-	oCross.href = "null";
+	oCross.href = "#null";
 	oCross.innerHTML = "&times";
 	oMask.onclick = oCross.onclick = function () {
 		document.body.removeChild(oMask);
@@ -1251,7 +1251,7 @@ function o_alert(msg, onValid) {
 	}
 	var oCross = document.createElement("a");
 	oCross.className = "o_dialog_cross";
-	oCross.href = "null";
+	oCross.href = "#null";
 	oCross.innerHTML = "&times";
 	oDialog.appendChild(oCross);
 	var oMessage = document.createElement("div");
@@ -1325,10 +1325,10 @@ function o_disappear(o_msg, time) {
 	o_postfade(o_msg, time);
 }
 function o_send_answer(dem, rep, msg, battle) {
-	o_xhr("repond.php", "demande=" + dem + "&rep=" + rep + "&msg=" + encodeURIComponent(msg) + (battle ? "&battle" : ""), function (reponse) {
+	o_xhr("/repond.php", "demande=" + dem + "&rep=" + rep + "&msg=" + encodeURIComponent(msg) + (battle ? "&battle" : ""), function (reponse) {
 		if (reponse == 1) {
 			if (rep)
-				displayMsg(o_language ? 'Invitation accepted! <a href="online.php' + (battle ? "?battle" : "") + '">Click here</a> to go to the online mode!' : 'Demande accept&eacute;e&nbsp;! <a href="online.php' + (battle ? "?battle" : "") + '">Cliquez ici</a> pour acc&eacute;der au mode en ligne&nbsp;!', false);
+				displayMsg(o_language ? 'Invitation accepted! <a href="/online.php' + (battle ? "?battle" : "") + '">Click here</a> to go to the online mode!' : 'Demande accept&eacute;e&nbsp;! <a href="/online.php' + (battle ? "?battle" : "") + '">Cliquez ici</a> pour acc&eacute;der au mode en ligne&nbsp;!', false);
 			return true;
 		}
 		return false;
@@ -1353,7 +1353,7 @@ function o_refresh() {
 		var o_chat = o_chats[i];
 		o_addmsgdata(i, data, o_chat);
 	}
-	o_xhr("coreload.php", data.join("&"), function (reponse) {
+	o_xhr("/coreload.php", data.join("&"), function (reponse) {
 		if (reponse) {
 			var oJoueursInfos;
 			try {
@@ -1461,13 +1461,13 @@ function o_refresh() {
 			for (var i = 0; i < newReponses.length; i++) {
 				var a_active = o_active;
 				o_active = 1;
-				var o_msgId = displayMsg(newReponses[i][2] ? (o_language ? newReponses[i][1] + ' <b>accepted</b> your invitation' + (newReponses[i][3] ? ' with the following messaage: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '! ') + '<a href="online.php' + (newReponses[i][4] ? '?battle' : '') + '">Click here</a> to go to the online mode!' : newReponses[i][1] + '</b> a <b>accept&eacute;</b> votre demande' + (newReponses[i][3] ? ' avec le message suivant&nbsp;: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '&nbsp;! ') + '<a href="online.php' + (newReponses[i][4] ? '?battle' : '') + '">Cliquez ici</a> pour acc&eacute;der au mode en ligne&nbsp;!') : (o_language ? 'Sorry, ' + newReponses[i][1] + ' <b>rejected</b> your invitation' + (newReponses[i][3] ? ' for the following reason: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '...') : 'Dommage, ' + newReponses[i][1] + ' a <b>refus&eacute;</b> votre demande' + (newReponses[i][3] ? ' pour la raison suivante&nbsp;: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '...')), true);
+				var o_msgId = displayMsg(newReponses[i][2] ? (o_language ? newReponses[i][1] + ' <b>accepted</b> your invitation' + (newReponses[i][3] ? ' with the following messaage: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '! ') + '<a href="/online.php' + (newReponses[i][4] ? '?battle' : '') + '">Click here</a> to go to the online mode!' : newReponses[i][1] + '</b> a <b>accept&eacute;</b> votre demande' + (newReponses[i][3] ? ' avec le message suivant&nbsp;: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '&nbsp;! ') + '<a href="/online.php' + (newReponses[i][4] ? '?battle' : '') + '">Cliquez ici</a> pour acc&eacute;der au mode en ligne&nbsp;!') : (o_language ? 'Sorry, ' + newReponses[i][1] + ' <b>rejected</b> your invitation' + (newReponses[i][3] ? ' for the following reason: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '...') : 'Dommage, ' + newReponses[i][1] + ' a <b>refus&eacute;</b> votre demande' + (newReponses[i][3] ? ' pour la raison suivante&nbsp;: <p class="o_msg"><span>' + newReponses[i][3] + '</span></p>' : '...')), true);
 				var cross = document.getElementById("comsg" + o_msgId).getElementsByTagName("a")[0];
 				o_initdataset(cross);
 				cross.dataset.member = newReponses[i][0];
 				cross.dataset.battle = newReponses[i][4] ? 1 : "";
 				cross.onclick = function () {
-					o_xhr("markasseen.php", "member=" + this.dataset.member + (this.dataset.member ? "&battle" : ""), function (res) {
+					o_xhr("/markasseen.php", "member=" + this.dataset.member + (this.dataset.member ? "&battle" : ""), function (res) {
 						return (res == 1);
 					});
 				};
@@ -1513,7 +1513,7 @@ function o_chatrefresh() {
 				o_handler = setTimeout(o_chatrefresh, 1000);
 			return;
 		}
-		o_xhr("chatreload.php", data.join("&"), function (reponse) {
+		o_xhr("/chatreload.php", data.join("&"), function (reponse) {
 			if (reponse) {
 				var oJoueursInfos;
 				try {
@@ -1579,7 +1579,7 @@ function o_handlenewconvs(newConvs) {
 			o_initdataset(cross);
 			cross.dataset.answer = newConv[0];
 			cross.onclick = function () {
-				o_xhr("markasread.php", "answer=" + this.dataset.answer, function (res) {
+				o_xhr("/markasread.php", "answer=" + this.dataset.answer, function (res) {
 					return (res == 1);
 				});
 			};

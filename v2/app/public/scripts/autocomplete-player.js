@@ -4,7 +4,7 @@ function autocompletePlayer(selector, options) {
 		minChars: 1,
 		source: function(term, suggest) {
 			var cHandler = ++autoHandler;
-			o_xhr('matchingPlayers.php', 'prefix='+encodeURIComponent(term), function(res) {
+			o_xhr('/matchingPlayers.php', 'prefix='+encodeURIComponent(term), function(res) {
 				if (cHandler == autoHandler)
 					suggest(JSON.parse(res));
 				return true;

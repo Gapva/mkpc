@@ -12,64 +12,6 @@
   select:active, input[type="text"]:active, input[type="number"]:active {
     background-color: #FF9010;
   }
-  table {
-    text-align: center;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    border: double 4px black;
-    background-color: #FFC028;
-    font-weight: bold;
-    color: black;
-  }
-  td {
-    border: solid 1px black;
-    margin: 2px;
-    padding: 5px;
-    width: 100px;
-  }
-  tr.fonce, tr.fonce a {
-    color: #820;
-  }
-  tr.fonce a:hover {
-    color: #B50;
-  }
-  tr.clair {
-    background-color: #FFE30C;
-  }
-  tr.clair, tr.clair a {
-    color: #F60;
-  }
-  tr.clair a:hover {
-    color: #FA0;
-  }
-  tr a {
-    text-decoration: none;
-  }
-  table div {
-    margin-left: 30px;
-    width: 24px;
-    height: 24px;
-    overflow: hidden;
-  }
-  table div img {
-    height: 100%;
-    position: relative;
-    left: -144px;
-  }
-  table .recorder {
-    white-space: nowrap;
-    margin: 0 5px;
-  }
-  table .recorder img {
-    height: 13px;
-    margin-right: 7px;
-  }
-  #titres {
-    background-color: #F90;
-    font-size: 12px;
-    padding: 2px;
-  }
   .pub {
     display: inline-block;
     max-width: 100%;
@@ -77,22 +19,6 @@
   }
   #month-selector {
     margin-top: 10px;
-  }
-  #page {
-    text-align: left;
-    background-color: #F90;
-    color: #800;
-  }
-  #page span {
-    color: #800;
-  }
-  #page a {
-    color: yellow;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  #page a:hover {
-    color: #FC0;
   }
   a {
     color: #F90;
@@ -141,5 +67,5 @@
     border-right: solid 1px #820;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-  }
+  } 
 }

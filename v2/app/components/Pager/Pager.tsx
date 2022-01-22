@@ -14,7 +14,6 @@ type Props = {
   onSetPage?: (page: number, e: MouseEvent) => void;
 }
 function Pager({ paging, page, count, onSetPage, maxInterval = 3, label = "Page :" }: Props) {
-  const router = useRouter()
   const nbPages = useMemo(() => {
     return Math.ceil(count / paging.limit)
   }, [count, paging]);
@@ -57,18 +56,7 @@ function Pager({ paging, page, count, onSetPage, maxInterval = 3, label = "Page 
     return res;
   }, [page, nbPages, maxInterval]);
 
-  const urlPrefix = useMemo(() => {
-    const baseUrl = router.asPath.replace(/([?&])page=(.+?)(\?|&|$)/g, "$1");
-    const queryChar = baseUrl.lastIndexOf("?");
-    if (queryChar === -1)
-      return baseUrl + "?";
-    if (queryChar === baseUrl.length - 1)
-      return baseUrl;
-    if (baseUrl.charAt(baseUrl.length - 1) === "&")
-      return baseUrl;
-    return baseUrl + "&";
-  }, [router.asPath]);
-
+  const urlPrefix = useUrlPrefix();
   return <>
     {label}
     {" "}
@@ -92,6 +80,22 @@ function PageBlock({ block, currentPage, urlPrefix, onSetPage }: PageBlockProps)
       <>   </>
     </Fragment>
   })}</>
+}
+
+export function useUrlPrefix() {
+  const router = useRouter()
+
+  return useMemo(() => {
+    const baseUrl = router.asPath.replace(/([?&])page=(.+?)(\?|&|$)/g, "$1");
+    const queryChar = baseUrl.lastIndexOf("?");
+    if (queryChar === -1)
+      return baseUrl + "?";
+    if (queryChar === baseUrl.length - 1)
+      return baseUrl;
+    if (baseUrl.charAt(baseUrl.length - 1) === "&")
+      return baseUrl;
+    return baseUrl + "&";
+  }, [router.asPath])
 }
 
 export default Pager;

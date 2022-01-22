@@ -152,9 +152,9 @@ const Home: NextPage = () => {
   const leaderboardLink = useMemo(() => {
     switch (leaderboardTab) {
       case LeaderboardTab.VS:
-        return "/leaderboard";
+        return "/leaderboard/online";
       case LeaderboardTab.BATTLE:
-        return "/leaderboard?battle";
+        return "/leaderboard/online?battle";
       case LeaderboardTab.TT_150:
         return "classement.global.php?cc=150";
       case LeaderboardTab.TT_200:
