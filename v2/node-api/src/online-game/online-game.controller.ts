@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Profile } from 'src/user/profile.entity';
-import { EntityManager, FindOneOptions, In } from 'typeorm';
+import { EntityManager, FindOneOptions, In, LessThan, Equal, Not, Raw } from 'typeorm';
 import { User } from '../user/user.entity';
 
 @Controller("/online-game")
@@ -9,13 +9,14 @@ export class OnlineGameController {
 
   @Get("/leaderboard")
   async getLeaderboard(@Query() params) {
-    const where: FindOneOptions<User>["where"] = {
+    const baseFilters: FindOneOptions<User>["where"] = {
       deleted: false
     };
+    let inputFilters: FindOneOptions<User>["where"] = {};
     let score = "pts_vs";
     if (params) {
       if (params.name)
-        where.name = params.name;
+        inputFilters.name = params.name;
       switch (params.mode) {
         case "battle":
           score = "pts_battle";
@@ -25,20 +26,25 @@ export class OnlineGameController {
           break;
       }
     }
+    if (score !== "pts_challenge") {
+      baseFilters[score] = Not(5000);
+    }
     let take = 20;
     let paging = params.paging || {};
     if (paging.limit < take) take = paging.limit;
     const skip = paging.offset;
+    const isInputFilter = Object.keys(inputFilters).length > 0;
     const leaderboard = await this.em.find(User, {
-      where,
+      where: isInputFilter ? inputFilters : baseFilters,
       order: {
-        [score]: "DESC"
+        [score]: "DESC",
+        id: "ASC"
       },
       take,
       skip
     });
     const count = paging.count ? await this.em.count(User, {
-      where,
+      where: baseFilters,
     }) : leaderboard.length;
     const profiles = await this.em.find(Profile, {
       where: {
@@ -46,7 +52,18 @@ export class OnlineGameController {
       },
       relations: ["country"]
     });
-    const firstRanking = 1+(+skip||0);
+
+    let firstRanking = 1+(+skip||0);
+    if (isInputFilter && leaderboard.length > 0) {
+      const userScore = leaderboard[0][score];
+      firstRanking = 1 + await this.em.count(User, {
+        where: {
+          ...baseFilters,
+          id: Raw(`id AND (${score} > ${userScore} OR (${score} = ${userScore} AND id < ${leaderboard[0].id}))`)
+        }
+      })
+    }
+
     const data = leaderboard.map((user, i) => {
       const country = profiles.find((profile) => profile.id === user.id)?.country;
       return {

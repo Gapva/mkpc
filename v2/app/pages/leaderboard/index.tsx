@@ -12,32 +12,41 @@ import { usePaging } from "../../hooks/usePaging";
 import Pager from "../../components/Pager/Pager";
 import { buildQuery } from "../../helpers/uris";
 import { formatRank } from "../../helpers/records";
-import useFormSubmit from "../../hooks/useFormSubmit";
+import { FormEvent, useState } from "react";
 
 const Leaderboard: NextPage = () => {
   const language = useLanguage();
   const router = useRouter();
-  const handleSearch = useFormSubmit();
   const authUser = useAuthUser();
 
-  const { username, battle } = router.query;
+  const { battle } = router.query;
   const isBattle = battle != null;
+  const [username, setUsername] = useState("");
 
   const { paging, currentPage, setCurrentPage } = usePaging(20);
 
-  const resetPage = () => {
+  function resetPage() {
     setCurrentPage(1);
   };
+  function handlePageChange(page) {
+    setUsername("");
+    setCurrentPage(page);
+  }
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    resetPage();
+    setUsername(e.currentTarget.elements["username"].value);
+  }
 
   const { data: leaderboardPayload, loading: leaderboardLoading } = useSmoothFetch(`/api/online-game/leaderboard?${buildQuery({
     mode: isBattle ? "battle" : "vs",
     name: username,
     "paging[limit]": paging.limit,
     "paging[offset]": paging.offset,
-    "paging[count]": 1
+    "paging[count]": username ? undefined : 1
   })}`, {
     placeholder: () => ({
-      data: Placeholder.array(20, (id) => ({
+      data: Placeholder.array(paging.limit, (id) => ({
         id,
         name: Placeholder.word(10, 20),
         score: Placeholder.number(10000, 200000),
@@ -48,6 +57,8 @@ const Leaderboard: NextPage = () => {
     }),
     reloadDeps: [username, isBattle, currentPage]
   });
+
+  const playerPage = username && leaderboardPayload.data[0] && Math.ceil(leaderboardPayload.data[0].rank / paging.limit);
 
   return (
     <ClassicPage title={`${language ? 'Online mode leaderboard':'Classement mode en ligne'} - Mario Kart PC`} className={styles.Leaderboard} page="game">
@@ -69,13 +80,12 @@ const Leaderboard: NextPage = () => {
             <label htmlFor="username"><strong>{ language ? 'See player':'Voir joueur' }</strong></label>
             {" : "}
             <input type="text" name="username" id="username" defaultValue={username || authUser.name} />
-            {isBattle && <input type="hidden" name="battle" value="" />}
             {" "}
             <input type="submit" value={ language ? 'Validate':'Valider' } className={commonStyles.action_button} /></p>
         </blockquote>
       </form>
       <Skeleton loading={leaderboardLoading}>
-        <table>
+        {leaderboardPayload.data.length ? <table>
           <thead>
             <tr id={styles.titres}>
             <td>Place</td>
@@ -98,11 +108,19 @@ const Leaderboard: NextPage = () => {
           <tfoot>
             <tr>
               <td colSpan={4} id={styles.page}>
-                <Pager page={currentPage} paging={paging} count={leaderboardPayload.count} onSetPage={setCurrentPage} />
+                {username
+                  ? <>Page : <Link href={`?page=${playerPage}${isBattle ? "&battle":""}`}><a onClick={(e) => handlePageChange(playerPage)}>{playerPage}</a></Link></>
+                  : <Pager page={currentPage} paging={paging} count={leaderboardPayload.count} onSetPage={handlePageChange} />
+                }
               </td>
             </tr>
           </tfoot>
         </table>
+        : <p>{language
+            ? <strong>No results found for this search</strong>
+            : <strong>Aucun résultat trouvé pour cette recherche</strong>
+            }</p>
+        }
       </Skeleton>
       <p><a href={`online.php${isBattle ? '?battle':''}`}>{ language ? 'Back to the online mode home':'Retour à l\'accueil du mode en ligne' }</a><br />
       <Link href="/">{ language ? 'Back to Mario Kart PC':'Retour à Mario Kart PC' }</Link></p>
