@@ -1,4 +1,6 @@
 <?php
+header('location: /leaderboard/timetrial?'. http_build_query($_GET));
+exit;
 include('language.php');
 include('session.php');
 include('initdb.php');

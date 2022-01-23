@@ -156,9 +156,9 @@ const Home: NextPage = () => {
       case LeaderboardTab.BATTLE:
         return "/leaderboard/online?battle";
       case LeaderboardTab.TT_150:
-        return "classement.global.php?cc=150";
+        return "/leaderboard/timetrial?cc=150";
       case LeaderboardTab.TT_200:
-        return "classement.global.php?cc=200";
+        return "/leaderboard/timetrial?cc=200";
     }
   }, [leaderboardTab]);
 
@@ -891,7 +891,7 @@ const Home: NextPage = () => {
               </tbody>
             </table>
           </Skeleton>
-          <a className={cx(styles.right_section_actions, commonStyles.action_button)} href={leaderboardLink}>{language ? 'Display all' : 'Afficher tout'}</a>
+          <Link href={leaderboardLink}><a className={cx(styles.right_section_actions, commonStyles.action_button)}>{language ? 'Display all' : 'Afficher tout'}</a></Link>
         </div>
         <div className={styles.pub_section}>
           <Ad width={300} height={250} bannerId="4492555127" />

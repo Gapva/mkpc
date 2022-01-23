@@ -8,17 +8,16 @@ import Leaderboard from "../../components/Leaderboard/Leaderboard";
 import useAuthUser from "../../hooks/useAuthUser";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import useScript from "../../hooks/useScript";
 import { useRouter } from "next/router";
 import { usePaging } from "../../hooks/usePaging";
+import Ad from "../../components/Ad/Ad";
 import usePlayerAutoComplete from "../../hooks/usePlayerAutoComplete";
 
 const OnlineLeaderboard: NextPage = () => {
   const language = useLanguage();
   const router = useRouter();
   const authUser = useAuthUser();
-  const { battle } = router.query;
-  const isBattle = battle != null;
+  const { cc } = router.query;
 
   const [username, setUsername] = useState("");
   const { paging, currentPage, setCurrentPage } = usePaging(20);
@@ -26,12 +25,8 @@ const OnlineLeaderboard: NextPage = () => {
 
   useEffect(() => {
     setPageChanging(false);
-  }, [isBattle])
+  }, [cc])
 
-  function resetPage() {
-    setPageChanging(true);
-    handlePageChange(1);
-  }
   function handlePageChange(page) {
     setUsername("");
     setCurrentPage(page);
@@ -42,7 +37,6 @@ const OnlineLeaderboard: NextPage = () => {
     setUsername(e.currentTarget.elements["username"].value);
   }
 
-
   usePlayerAutoComplete({
     inputSelector: "#username",
     onSelect: (event, term) => {
@@ -50,26 +44,36 @@ const OnlineLeaderboard: NextPage = () => {
       setCurrentPage(1);
       setUsername(term);
     }
-  });
+  })
 
   return (
-    <ClassicPage title={`${language ? 'Online mode leaderboard':'Classement mode en ligne'} - Mario Kart PC`} className={styles.Leaderboard} page="game">
+    <ClassicPage title={`${language ? 'Time trial ranking':'Classement contre-la-montre'} - Mario Kart PC`} className={styles.Leaderboard} page="game">
       <Head>
         <link rel="stylesheet" href="/styles/auto-complete.css" />
       </Head>
-      <h1>{ language ? 'Leaderboard Mario Kart PC':'Classement Mario Kart PC' }</h1>
+      <h1>{ language ? 'Time Trial - Global ranking':'Contre-la-montre - Classement global' }</h1>
       <div className={styles["ranking-modes"]}>
         {
-          isBattle ? <>
-            <Link href="/leaderboard/online"><a onClick={resetPage}>{ language ? 'VS mode':'Course VS' }</a></Link>
-            <span>{ language ? 'Battle mode':'Bataille de ballons' }</span>
+          (cc === "200") ? <>
+            <Link href="?cc=150">150cc</Link>
+            <span>200cc</span>
           </> : <>
-            <span>{ language ? 'VS mode':'Course VS' }</span>
-            <Link href="/leaderboard/online?battle"><a onClick={resetPage}>{ language ? 'Battle mode':'Bataille de ballons' }</a></Link>
+			      <span>150cc</span>
+            <Link href="?cc=200">200cc</Link>
           </>
         }
       </div>
-      <form method="post" action={"/leaderboard/online"} onSubmit={handleSearch}>
+      { language ? <p>
+        This page shows a leaderboard of top players in time trial.<br />
+        This leaderboard is based on a score calculation which depends on your rank on each circuit. See <a href="/topic.php?topic=5318">this topic</a> for further info.
+        </p> : <p>
+          Cette page affiche le classement des meilleurs joueurs en contre la montre.<br />
+          Ce classement se base sur un calcul de score dépendant de votre place sur chaque circuit. Voir <a href="/topic.php?topic=5318">ce topic</a> pour en savoir plus.
+        </p>}
+        <div className={styles.pub}>
+          <Ad bannerId="6691323567" width={468} height={60} />
+        </div>
+        <form method="post" action={"/leaderboard/online"} onSubmit={handleSearch}>
         <blockquote>
           <p>
             <label htmlFor="username"><strong>{ language ? 'See player':'Voir joueur' }</strong></label>
@@ -83,11 +87,11 @@ const OnlineLeaderboard: NextPage = () => {
       <Leaderboard fetcherOptions={
         {
           disabled: pageChanging,
-          endpoint: "/api/online-game/leaderboard",
+          endpoint: "/api/time-trial/leaderboard",
           query: {
-            mode: isBattle ? "battle" : "vs"
+            cc
           },
-          reloadDeps: [pageChanging, isBattle]
+          reloadDeps: [pageChanging, cc]
         }
       } username={username} pager={{
         paging,
@@ -95,8 +99,10 @@ const OnlineLeaderboard: NextPage = () => {
         onSetPage: handlePageChange,
       }} />
       
-      <p><a href={`online.php${isBattle ? '?battle':''}`}>{ language ? 'Back to the online mode home':'Retour à l\'accueil du mode en ligne' }</a><br />
-      <Link href="/">{ language ? 'Back to Mario Kart PC':'Retour à Mario Kart PC' }</Link></p>
+  	<p>
+        <a href={`/classement.php?cc=${cc}`}>{ language ? 'Ranking circuit by circuit':'Classement circuit par circuit' }</a><br />
+        <Link href="/">{ language ? 'Back to Mario Kart PC':'Retour à Mario Kart PC' }</Link>
+    </p>
     </ClassicPage>
   );
 }
