@@ -822,7 +822,7 @@ const Home: NextPage = () => {
           </Skeleton>
           {user?.roles.clvalidator && <PendingChallenges />}
           <Link href="/challenges"><a className={cx(styles.right_section_actions, commonStyles.action_button)}>{language ? 'Display all' : 'Afficher tout'}</a></Link>
-          <div id={styles.challenge_ranking}><a href="/challengeRanking.php">{language ? 'Challenge points - Leaderboard' : 'Classement des points défis'}</a></div>
+          <div id={styles.challenge_ranking}><Link href="/leaderboard/challenges">{language ? 'Challenge points - Leaderboard' : 'Classement des points défis'}</Link></div>
           <h2>{language ? 'Recent activity' : 'Activité récente'}</h2>
           <Skeleton loading={commentsLoading || recordsLoading} id={styles.comments_section} className={styles.right_subsection}>
             {activityPayload?.map((activity) => (

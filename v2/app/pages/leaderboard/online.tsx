@@ -12,6 +12,7 @@ import useScript from "../../hooks/useScript";
 import { useRouter } from "next/router";
 import { usePaging } from "../../hooks/usePaging";
 import usePlayerAutoComplete from "../../hooks/usePlayerAutoComplete";
+import Ad from "../../components/Ad/Ad";
 
 const OnlineLeaderboard: NextPage = () => {
   const language = useLanguage();
@@ -69,6 +70,9 @@ const OnlineLeaderboard: NextPage = () => {
           </>
         }
       </div>
+      <div className={styles.pub}>
+        <Ad bannerId="6691323567" width={468} height={60} />
+      </div>
       <form method="post" action={"/leaderboard/online"} onSubmit={handleSearch}>
         <blockquote>
           <p>
@@ -95,7 +99,7 @@ const OnlineLeaderboard: NextPage = () => {
         onSetPage: handlePageChange,
       }} />
       
-      <p><a href={`online.php${isBattle ? '?battle':''}`}>{ language ? 'Back to the online mode home':'Retour à l\'accueil du mode en ligne' }</a><br />
+      <p><a href={`/online.php${isBattle ? '?battle':''}`}>{ language ? 'Back to the online mode home':'Retour à l\'accueil du mode en ligne' }</a><br />
       <Link href="/">{ language ? 'Back to Mario Kart PC':'Retour à Mario Kart PC' }</Link></p>
     </ClassicPage>
   );

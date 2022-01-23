@@ -28,11 +28,13 @@ function getChallengeColors() {
 function getChallengeDifficulty($challenge) {
 	$difficulties = getChallengeDifficulties();
 	$colors = getChallengeColors();
+	$rewards = getChallengeRewards();
 	$diffId = $challenge['difficulty'];
 	return array(
 		'level' => $diffId,
 		'name' => $difficulties[$diffId],
-		'color' => $colors[$diffId]
+		'color' => $colors[$diffId],
+		'pts' => $rewards[$diffId]
 	);
 }
 ?>

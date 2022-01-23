@@ -73,7 +73,7 @@ const OnlineLeaderboard: NextPage = () => {
         <div className={styles.pub}>
           <Ad bannerId="6691323567" width={468} height={60} />
         </div>
-        <form method="post" action={"/leaderboard/online"} onSubmit={handleSearch}>
+        <form method="post" action={"/leaderboard/timetrial"} onSubmit={handleSearch}>
         <blockquote>
           <p>
             <label htmlFor="username"><strong>{ language ? 'See player':'Voir joueur' }</strong></label>

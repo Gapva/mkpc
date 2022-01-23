@@ -72,7 +72,7 @@ const ChallengesList: NextPage = () => {
         {moderate && <ValidationTips />}
         {remoderate && <ReValidationTips />}
         {!rateChallenges && <div className={styles["challenges-list-sublinks"]}>
-          <img src="images/cups/cup2.png" alt="Cup" /> <a href="challengeRanking.php">{language ? 'Challenges leaderboard' : 'Classement des défis'}</a>{"   "}
+          <img src="images/cups/cup2.png" alt="Cup" /> <Link href="/leaderboard/challenges">{language ? 'Challenges leaderboard' : 'Classement des défis'}</Link>{"   "}
           <img src="images/ministar0.png" alt="Star" className={styles.icStar} /> <Link href="/challenges?rate">{language ? 'Rate challenges' : 'Noter les défis'}</Link>
         </div>}
         {!rateChallenges && <ChallengesListSearch />}
